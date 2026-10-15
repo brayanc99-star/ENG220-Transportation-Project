@@ -1,8 +1,14 @@
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import streamlit as st
 
-# 1. Dataset Initialization
+# 1. Page Configuration
+st.set_page_config(
+    page_title="U.S. 550 Corridor Safety Analysis", layout="wide"
+)
+
+# 2. Dataset Initialization
 df = pd.DataFrame(
     {
         "milepost": [55.0, 59.5, 63.0, 68.0, 72.5, 77.0, 82.0, 85.0],
@@ -26,7 +32,17 @@ df = pd.DataFrame(
     }
 )
 
-# 2. Subplot Layout Setup (Dual-Y per subplot)
+# App Title & Overview
+st.title("U.S. 550 Corridor Safety Analysis: Cuba, NM")
+st.markdown(
+    "This dashboard evaluates traffic volumes, heavy freight shares, and wildlife collision patterns along the U.S. 550 corridor."
+)
+
+# Display the Data Table
+st.subheader("Corridor Dataset")
+st.dataframe(df, use_container_width=True)
+
+# 3. Subplot Layout Setup (Dual-Y per subplot)
 fig = make_subplots(
     rows=2,
     cols=1,
@@ -39,7 +55,7 @@ fig = make_subplots(
     specs=[[{"secondary_y": True}], [{"secondary_y": True}]],
 )
 
-# 3. Trace 1: AADT Traffic Volume
+# 4. Trace 1: AADT Traffic Volume
 fig.add_trace(
     go.Scatter(
         x=df["milepost"],
@@ -55,7 +71,7 @@ fig.add_trace(
     secondary_y=False,
 )
 
-# 4. Trace 2 & 3: Elk & Deer Collisions
+# 5. Trace 2 & 3: Elk & Deer Collisions
 fig.add_trace(
     go.Bar(
         x=df["milepost"],
@@ -84,7 +100,7 @@ fig.add_trace(
     secondary_y=True,
 )
 
-# 5. Trace 4 & 5: Freight Percentage & Crash Severity Index
+# 6. Trace 4 & 5: Freight Percentage & Crash Severity Index
 fig.add_trace(
     go.Scatter(
         x=df["milepost"],
@@ -113,7 +129,7 @@ fig.add_trace(
     secondary_y=True,
 )
 
-# 6. Highlight Critical Hotspot Zone
+# 7. Highlight Critical Hotspot Zone
 fig.add_vrect(
     x0=71.0,
     x1=80.0,
@@ -126,9 +142,8 @@ fig.add_vrect(
     col=1,
 )
 
-# 7. Layout & Styling Customization
+# 8. Layout & Styling Customization
 fig.update_layout(
-    title_text="<b>U.S. 550 Corridor Safety Analysis: Cuba, NM</b>",
     template="plotly_white",
     height=750,
     hovermode="x unified",
@@ -139,19 +154,13 @@ fig.update_layout(
 )
 
 fig.update_xaxes(title_text="U.S. 550 Milepost (MP)", row=2, col=1)
-fig.update_yaxes(
-    title_text="AADT Volume", row=1, col=1, secondary_y=False
-)
-fig.update_yaxes(
-    title_text="Collisions / Year", row=1, col=1, secondary_y=True
-)
-fig.update_yaxes(
-    title_text="Truck Traffic (%)", row=2, col=1, secondary_y=False
-)
+fig.update_yaxes(title_text="AADT Volume", row=1, col=1, secondary_y=False)
+fig.update_yaxes(title_text="Collisions / Year", row=1, col=1, secondary_y=True)
+fig.update_yaxes(title_text="Truck Traffic (%)", row=2, col=1, secondary_y=False)
 fig.update_yaxes(
     title_text="Severity Index (1-10)", row=2, col=1, secondary_y=True
 )
 
-# Render or export
-fig.show()
-fig.write_html("us550_safety_dashboard.html")
+# Render Chart in Streamlit
+st.subheader("Interactive Corridor Analysis")
+st.plotly_chart(fig, use_container_width=True)
